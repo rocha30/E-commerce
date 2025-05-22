@@ -1,4 +1,4 @@
-import styles from '../styles/components/CartItem.module.css';
+import { styles } from '../styles/components/CartItem.css';
 export function CartItem({ title, image, price, quantity, onRemove }) {
     return (
         <div className={styles.item}>
