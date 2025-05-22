@@ -1,10 +1,11 @@
-import styles from '../styles/components/Footer.module.css';
 
+import React from 'react'
+import styles from '../styles/components/Footer.module.css'
 
-export function Footer() {
+export default function Footer() {
     return (
         <footer className={styles.footer}>
-            <p>&copy; {new Date().getFullYear()} Exquisit Time. All rights reserved.</p>
+            {/* tu pie de página */}
         </footer>
-    );
+    )
 }

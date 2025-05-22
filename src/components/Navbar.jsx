@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom';
-import styles from '../styles/components/Navbar.module.css';
+// filepath: src/components/Navbar.jsx
+import { Link } from 'react-router-dom'
+import styles from '../styles/components/Navbar.module.css'
 
-
-export function Navbar() {
+export default function Navbar() {
     return (
         <nav className={styles.navbar}>
             <div className={styles.logo}>Exquisit Time</div>
@@ -12,5 +12,5 @@ export function Navbar() {
                 <li><Link to="/cart">Cart</Link></li>
             </ul>
         </nav>
-    );
+    )
 }
