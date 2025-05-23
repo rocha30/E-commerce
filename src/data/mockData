@@ -1,0 +1,122 @@
+export const mockBrands = [
+    { id: 1, name: "Richard Mille" },
+    { id: 2, name: "Rolex" },
+    { id: 3, name: "Patek Philippe" },
+    { id: 4, name: "Audemars Piguet" },
+    { id: 5, name: "Omega" },
+    { id: 6, name: "TAG Heuer" }
+];
+
+export const mockModels = {
+    "Richard Mille": [
+        {
+            id: 1,
+            name: "RM 27-04 Rafael Nadal",
+            price: 1050000,
+            image: "/src/assets/images/Richard-Mille-RM-27-04-Rafael-Nadal-Cover.jpg",
+            description: "Ultra-light tourbillon designed for extreme sports"
+        },
+        {
+            id: 2,
+            name: "RM 35-03 Automatic Rafael Nadal",
+            price: 220000,
+            image: "/src/assets/images/rm-35-03.jpg",
+            description: "Lightweight automatic movement"
+        },
+        {
+            id: 3,
+            name: "RM 11-03 Automatic Flyback Chronograph",
+            price: 180000,
+            image: "/src/assets/images/rm-11-03.jpg",
+            description: "Flyback chronograph with annual calendar"
+        }
+    ],
+    "Rolex": [
+        {
+            id: 4,
+            name: "Submariner Date",
+            price: 9550,
+            image: "/src/assets/images/submariner.jpg",
+            description: "Professional diving watch"
+        },
+        {
+            id: 5,
+            name: "GMT-Master II",
+            price: 10700,
+            image: "/src/assets/images/gmt-master.jpg",
+            description: "Dual time zone watch"
+        },
+        {
+            id: 6,
+            name: "Daytona",
+            price: 15100,
+            image: "/src/assets/images/daytona.jpg",
+            description: "Racing chronograph"
+        }
+    ],
+    "Patek Philippe": [
+        {
+            id: 7,
+            name: "Nautilus 5711/1A",
+            price: 32520,
+            image: "/src/assets/images/nautilus.jpg",
+            description: "Luxury sports watch"
+        },
+        {
+            id: 8,
+            name: "Calatrava 5227",
+            price: 36400,
+            image: "/src/assets/images/calatrava.jpg",
+            description: "Classic dress watch"
+        }
+    ],
+    "Audemars Piguet": [
+        {
+            id: 9,
+            name: "Royal Oak 15500ST",
+            price: 27800,
+            image: "/src/assets/images/royal-oak.jpg",
+            description: "Iconic octagonal bezel design"
+        }
+    ],
+    "Omega": [
+        {
+            id: 10,
+            name: "Speedmaster Professional",
+            price: 6350,
+            image: "/src/assets/images/speedmaster.jpg",
+            description: "Moonwatch chronograph"
+        }
+    ],
+    "TAG Heuer": [
+        {
+            id: 11,
+            name: "Monaco",
+            price: 6150,
+            image: "/src/assets/images/monaco.jpg",
+            description: "Square case racing chronograph"
+        }
+    ]
+};
+
+// Funciones simuladas de API
+export const fetchBrands = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: mockBrands });
+        }, 800); // Simula latencia de red
+    });
+};
+
+export const fetchModels = (brandName) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const models = mockModels[brandName];
+            if (models) {
+                resolve({ data: models });
+            } else {
+                reject(new Error(`No models found for brand: ${brandName}`));
+            }
+        }, 600);
+    });
+};

@@ -1,16 +1,24 @@
-// filepath: src/components/Navbar.jsx
-import { Link } from 'react-router-dom'
-import styles from '../styles/components/Navbar.module.css'
+import React from 'react';
+import { Link } from 'react-router-dom';
+import '../styles/components/Navbar.css';
 
-export default function Navbar() {
+const Navbar = () => {
     return (
-        <nav className={styles.navbar}>
-            <div className={styles.logo}>Exquisit Time</div>
-            <ul className={styles.links}>
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/catalog">Catalog</Link></li>
-                <li><Link to="/cart">Cart</Link></li>
-            </ul>
+        <nav className="navbar">
+            <div className="navbar__left">
+                <Link to="/search" className="navbar__link">SEARCH</Link>
+            </div>
+
+            <div className="navbar__center">
+                <Link to="/" className="navbar__logo">Exquisit Time</Link>
+            </div>
+
+            <div className="navbar__right">
+                <Link to="/catalog" className="navbar__link">COLLECTIONS</Link>
+                <Link to="/cart" className="navbar__link">BAG</Link>
+            </div>
         </nav>
-    )
-}
+    );
+};
+
+export default Navbar;

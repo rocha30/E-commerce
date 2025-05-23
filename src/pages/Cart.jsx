@@ -3,7 +3,7 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CartItem from '../components/CartItem';
-import '../styles/components/CartItem.css';
+import '../components/CartItem'; // Asegúrate de tener estilos para el carrito
 
 // Ejemplo de hook personalizado para manejar el carrito
 // Si no lo tienes aún, reemplázalo por un array de ejemplo o implémentalo en src/hooks/useCart.js

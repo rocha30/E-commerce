@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { fetchBrands, fetchModels } from '../server/services/WatchService';
+import { fetchBrands, fetchModels } from '../data/mockData';
 import '../styles/Catalog.css';
 
 export default function Catalog() {
@@ -49,27 +49,39 @@ export default function Catalog() {
             <Navbar />
 
             <main className="catalog-container">
-                <section>
-                    <h2 className="catalog-title">Marcas</h2>
-                    <ul className="catalog-grid">
+                <section className="brands-section">
+                    <h2 className="catalog-title">Marcas de Lujo</h2>
+                    <div className="brands-grid">
                         {brands.map(b => (
-                            <li key={b.id}>
-                                <button onClick={() => setSelected(b.name)}>
-                                    {b.name}
-                                </button>
-                            </li>
+                            <button
+                                key={b.id}
+                                className={`brand-card ${selectedBrand === b.name ? 'selected' : ''}`}
+                                onClick={() => setSelected(b.name)}
+                            >
+                                {b.name}
+                            </button>
                         ))}
-                    </ul>
+                    </div>
                 </section>
 
                 {selectedBrand && (
-                    <section>
+                    <section className="models-section">
                         <h2 className="catalog-title">Modelos de {selectedBrand}</h2>
-                        <ul className="catalog-grid">
+                        <div className="models-grid">
                             {models.map(m => (
-                                <li key={m.id}>{m.name}</li>
+                                <div key={m.id} className="model-card">
+                                    <div className="model-image">
+                                        <img src={m.image} alt={m.name} />
+                                    </div>
+                                    <div className="model-info">
+                                        <h3>{m.name}</h3>
+                                        <p className="model-description">{m.description}</p>
+                                        <p className="model-price">${m.price.toLocaleString()}</p>
+                                        <button className="add-to-cart-btn">Agregar al Carrito</button>
+                                    </div>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     </section>
                 )}
             </main>
