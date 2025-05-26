@@ -1,28 +1,25 @@
-// src/hooks/useCart.js
-import { useState, useMemo } from 'react';
+// Actualizar src/hooks/useCart.js
+import { useMemo } from 'react';
+import { useCart as useCartContext } from '../context/CartContext';
 
-/**
- * Hook que devuelve los items del carrito y el precio total.
- * Por ahora usa datos estáticos de ejemplo.
- */
 export function useCart() {
-    // Items estáticos de ejemplo; en el futuro los cargarás de contexto o localStorage
-    const [items] = useState([
-        {
-            id: '1',
-            name: 'Rolex Datejust',
-            price: 6500,
-            quantity: 1,
-            image: '/assets/rolex-datejust.jpg'
-        },
-        // …más items si quieres…
-    ]);
+    const { state, dispatch } = useCartContext();
 
-    // Calculamos el total con useMemo para que solo se recalcule cuando cambien los items
-    const totalPrice = useMemo(
-        () => items.reduce((sum, i) => sum + i.price * i.quantity, 0),
-        [items]
-    );
+    const totals = useMemo(() => {
+        const subtotal = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const hasError = subtotal > 999.99;
 
-    return { items, totalPrice };
+        return {
+            subtotal,
+            total: subtotal,
+            hasError,
+            itemCount: state.items.reduce((sum, item) => sum + item.quantity, 0)
+        };
+    }, [state.items]);
+
+    return {
+        items: state.items,
+        ...totals,
+        dispatch
+    };
 }
