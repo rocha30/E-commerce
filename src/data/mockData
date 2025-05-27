@@ -1,10 +1,40 @@
 export const mockBrands = [
-    { id: 1, name: "Richard Mille" },
-    { id: 2, name: "Rolex" },
-    { id: 3, name: "Patek Philippe" },
-    { id: 4, name: "Audemars Piguet" },
-    { id: 5, name: "Omega" },
-    { id: 6, name: "TAG Heuer" }
+    {
+        id: 1,
+        name: "Richard Mille",
+        image: "/assets/images/brands/richard-mille-brand.jpg",
+        description: "Ultra-luxury Swiss timepieces"
+    },
+    {
+        id: 2,
+        name: "Rolex",
+        image: "/assets/images/brands/rolex-brand.jpg",
+        description: "Crown of Swiss watchmaking"
+    },
+    {
+        id: 3,
+        name: "Patek Philippe",
+        image: "/assets/images/brands/patek-philippe-brand.jpg",
+        description: "Tradition of excellence since 1839"
+    },
+    {
+        id: 4,
+        name: "Audemars Piguet",
+        image: "/assets/images/brands/audemars-piguet-brand.jpg",
+        description: "Masters of complications"
+    },
+    {
+        id: 5,
+        name: "Omega",
+        image: "/assets/images/brands/omega-brand.jpg",
+        description: "Precision for every achievement"
+    },
+    {
+        id: 6,
+        name: "TAG Heuer",
+        image: "/assets/images/brands/tag-heuer-brand.jpg",
+        description: "Swiss avant-garde since 1860"
+    }
 ];
 
 export const mockModels = {
@@ -12,22 +42,22 @@ export const mockModels = {
         {
             id: 1,
             name: "RM 27-04 Rafael Nadal",
-            price: 1050000,
-            image: "/src/assets/images/Richard-Mille-RM-27-04-Rafael-Nadal-Cover.jpg",
+            price: 89.99, // ⭐ Cambié de 899.99 a 89.99
+            image: "/assets/images/rm-27-04.jpg",
             description: "Ultra-light tourbillon designed for extreme sports"
         },
         {
             id: 2,
             name: "RM 35-03 Automatic Rafael Nadal",
-            price: 220000,
-            image: "/src/assets/images/rm-35-03.jpg",
+            price: 79.99, // ⭐ Cambié de 799.99 a 79.99
+            image: "/assets/images/rm-35-03.jpg",
             description: "Lightweight automatic movement"
         },
         {
             id: 3,
             name: "RM 11-03 Automatic Flyback Chronograph",
-            price: 180000,
-            image: "/src/assets/images/rm-11-03.jpg",
+            price: 74.99, // ⭐ Cambié de 749.99 a 74.99
+            image: "/assets/images/rm-11-03.jpg",
             description: "Flyback chronograph with annual calendar"
         }
     ],
@@ -35,22 +65,22 @@ export const mockModels = {
         {
             id: 4,
             name: "Submariner Date",
-            price: 9550,
-            image: "/src/assets/images/submariner.jpg",
+            price: 59.99, // ⭐ Cambié de 599.99 a 59.99
+            image: "/assets/images/submariner.jpg",
             description: "Professional diving watch"
         },
         {
             id: 5,
             name: "GMT-Master II",
-            price: 10700,
-            image: "/src/assets/images/gmt-master.jpg",
+            price: 64.99, // ⭐ Cambié de 649.99 a 64.99
+            image: "/assets/images/gmt-master.jpg",
             description: "Dual time zone watch"
         },
         {
             id: 6,
             name: "Daytona",
-            price: 15100,
-            image: "/src/assets/images/daytona.jpg",
+            price: 69.99, // ⭐ Cambié de 699.99 a 69.99
+            image: "/assets/images/daytona.jpg",
             description: "Racing chronograph"
         }
     ],
@@ -58,15 +88,15 @@ export const mockModels = {
         {
             id: 7,
             name: "Nautilus 5711/1A",
-            price: 32520,
-            image: "/src/assets/images/nautilus.jpg",
+            price: 84.99, // ⭐ Cambié de 849.99 a 84.99
+            image: "/assets/images/nautilus.jpg",
             description: "Luxury sports watch"
         },
         {
             id: 8,
             name: "Calatrava 5227",
-            price: 36400,
-            image: "/src/assets/images/calatrava.jpg",
+            price: 79.99, // ⭐ Cambié de 799.99 a 79.99
+            image: "/assets/images/calatrava.jpg",
             description: "Classic dress watch"
         }
     ],
@@ -74,8 +104,8 @@ export const mockModels = {
         {
             id: 9,
             name: "Royal Oak 15500ST",
-            price: 27800,
-            image: "/src/assets/images/royal-oak.jpg",
+            price: 89.99, // ⭐ Cambié de 899.99 a 89.99
+            image: "/assets/images/royal-oak.jpg",
             description: "Iconic octagonal bezel design"
         }
     ],
@@ -83,8 +113,8 @@ export const mockModels = {
         {
             id: 10,
             name: "Speedmaster Professional",
-            price: 6350,
-            image: "/src/assets/images/speedmaster.jpg",
+            price: 44.99, // ⭐ Cambié de 449.99 a 44.99
+            image: "/assets/images/speedmaster.jpg",
             description: "Moonwatch chronograph"
         }
     ],
@@ -92,8 +122,8 @@ export const mockModels = {
         {
             id: 11,
             name: "Monaco",
-            price: 6150,
-            image: "/src/assets/images/monaco.jpg",
+            price: 39.99, // ⭐ Cambié de 399.99 a 39.99
+            image: "/assets/images/monaco.jpg",
             description: "Square case racing chronograph"
         }
     ]
@@ -104,7 +134,7 @@ export const fetchBrands = () => {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve({ data: mockBrands });
-        }, 800); // Simula latencia de red
+        }, 100);
     });
 };
 
@@ -115,8 +145,23 @@ export const fetchModels = (brandName) => {
             if (models) {
                 resolve({ data: models });
             } else {
-                reject(new Error(`No models found for brand: ${brandName}`));
+                reject(new Error(`No se encontraron modelos para ${brandName}`));
             }
-        }, 600);
+        }, 300);
+    });
+};
+
+export const fetchProductById = (id) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const allProducts = Object.values(mockModels).flat();
+            const product = allProducts.find(p => p.id === parseInt(id));
+
+            if (product) {
+                resolve({ data: product });
+            } else {
+                reject(new Error('Producto no encontrado'));
+            }
+        }, 200);
     });
 };

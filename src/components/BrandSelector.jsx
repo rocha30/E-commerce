@@ -1,20 +1,49 @@
 import React from 'react';
+import '../styles/components/BrandSelector.css';
 
 export default function BrandSelector({ brands, selectedBrand, onSelect }) {
     return (
         <section className="brands-section">
-            <h2 className="catalog-title">Marcas de Lujo</h2>
-            <div className="brands-grid">
-                {brands.map(brand => (
+            <h2 className="catalog-title"></h2>
+
+            {/* Si no hay marca seleccionada, mostrar todas */}
+            {!selectedBrand && (
+                <div className="brands-grid">
+                    {brands.map(brand => (
+                        <div
+                            key={brand.id}
+                            className="brand-card"
+                            onClick={() => onSelect(brand.name)}
+                        >
+                            <div className="brand-image">
+                                <img
+                                    src={brand.image}
+                                    alt={brand.name}
+                                    onError={(e) => {
+                                        e.target.src = '/assets/images/placeholder-brand.jpg';
+                                    }}
+                                />
+                            </div>
+                            <div className="brand-content">
+                                <h3 className="brand-name">{brand.name}</h3>
+                                <p className="brand-description">{brand.description}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Si hay marca seleccionada, SOLO mostrar el botón de regreso */}
+            {selectedBrand && (
+                <div className="selected-brand-container">
                     <button
-                        key={brand.id}
-                        className={`brand-card ${selectedBrand === brand.name ? 'selected' : ''}`}
-                        onClick={() => onSelect(brand.name)}
+                        className="back-to-brands-btn"
+                        onClick={() => onSelect(null)}
                     >
-                        {brand.name}
+                        ← Volver a todas las marcas
                     </button>
-                ))}
-            </div>
+                </div>
+            )}
         </section>
     );
 }

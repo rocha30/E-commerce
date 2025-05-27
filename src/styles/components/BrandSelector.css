@@ -1,0 +1,234 @@
+/* BRANDS SECTION - Estilo oscuro */
+.brands-section {
+    margin-bottom: 4rem;
+    text-align: center;
+}
+
+.brands-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+    margin: 0 auto;
+    max-width: 1200px;
+    justify-items: center;
+}
+
+.brand-card {
+    background: rgba(0, 0, 0, 0.7);
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    width: 100%;
+    max-width: 350px;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    backdrop-filter: blur(10px);
+}
+
+.brand-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.brand-card:hover::before {
+    opacity: 1;
+}
+
+.brand-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.brand-card.selected {
+    border-color: #ff6b6b;
+    transform: translateY(-10px);
+    box-shadow: 0 20px 50px rgba(255, 107, 107, 0.4);
+}
+
+.brand-card.selected::before {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(238, 90, 36, 0.1) 100%);
+    opacity: 1;
+}
+
+/* Imagen de la marca */
+.brand-image {
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+}
+
+.brand-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.brand-card:hover .brand-image img {
+    transform: scale(1.05);
+}
+
+/* Contenido de texto */
+.brand-content {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+
+.brand-name {
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.8rem;
+    color: #ffffff;
+    transition: color 0.3s ease;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+.brand-card:hover .brand-name {
+    color: #f0f0f0;
+}
+
+.brand-description {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
+    font-style: italic;
+    transition: color 0.3s ease;
+}
+
+.brand-card:hover .brand-description {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Vista de marca seleccionada - Solo botón */
+.selected-brand-container {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.back-to-brands-btn {
+    background: linear-gradient(135deg, #000000 0%, #1b092d 100%);
+    color: rgb(255, 255, 255);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(20, 28, 66, 0.3);
+}
+
+.back-to-brands-btn:hover {
+    background: linear-gradient(135deg, #bcbec5 0%, #080428 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Animación de transición */
+.brands-grid {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.selected-brand-container {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .brands-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .brand-card {
+        max-width: 100%;
+        min-height: 350px;
+    }
+
+    .brand-image {
+        height: 200px;
+    }
+
+    .brand-content {
+        padding: 1.5rem;
+    }
+
+    .brand-name {
+        font-size: 1.2rem;
+    }
+
+    .brand-description {
+        font-size: 0.9rem;
+    }
+
+    .back-to-brands-btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-card {
+        min-height: 320px;
+    }
+
+    .brand-image {
+        height: 180px;
+    }
+
+    .brand-content {
+        padding: 1.2rem;
+    }
+
+    .brand-name {
+        font-size: 1.1rem;
+    }
+
+    .brand-description {
+        font-size: 0.85rem;
+    }
+
+    .back-to-brands-btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.85rem;
+    }
+}

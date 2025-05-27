@@ -1,5 +1,6 @@
 import React from 'react';
 import ProductCard from './ProductCard';
+import '../styles/components/ModelsList.css';
 
 export default function ModelsList({ selectedBrand, models }) {
     if (!selectedBrand) return null;

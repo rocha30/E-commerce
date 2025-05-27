@@ -21,7 +21,10 @@ export default function Catalog() {
     }, []);
 
     useEffect(() => {
-        if (!selectedBrand) return;
+        if (!selectedBrand) {
+            setModels([]);
+            return;
+        }
         setLoading(true);
         fetchModels(selectedBrand)
             .then(res => setModels(res.data || []))
@@ -29,7 +32,9 @@ export default function Catalog() {
             .finally(() => setLoading(false));
     }, [selectedBrand]);
 
-    if (loading) return <p className="catalog-status">Cargando catálogo…</p>;
+    if (loading && brands.length === 0) {
+        return <p className="catalog-status">Cargando catálogo…</p>;
+    }
     if (error) return <p className="catalog-status">Error: {error}</p>;
 
     return (

@@ -54,6 +54,6 @@
 }
 
 .checkout-btn:disabled {
-    background: #6c757d;
+    background: #8db2d3;
     cursor: not-allowed;
 }
