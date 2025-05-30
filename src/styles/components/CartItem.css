@@ -1,6 +1,7 @@
 .cart-item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 1rem;
     padding: 1rem;
     border-bottom: 1px solid #eee;
@@ -25,14 +26,16 @@
 .cart-item__controls {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
+    flex: 1;
 }
 
 .quantity-btn {
     width: 30px;
     height: 30px;
     border: 1px solid #ddd;
-    background: white;
+    background: rgb(98, 96, 96);
     cursor: pointer;
     border-radius: 4px;
 }

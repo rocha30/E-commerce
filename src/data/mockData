@@ -2,37 +2,37 @@ export const mockBrands = [
     {
         id: 1,
         name: "Richard Mille",
-        image: "/assets/images/brands/richard-mille-brand.jpg",
+        image: "./public/images/RM/RM11-03.jpg",
         description: "Ultra-luxury Swiss timepieces"
     },
     {
         id: 2,
         name: "Rolex",
-        image: "/assets/images/brands/rolex-brand.jpg",
+        image: "./public/images/Rolex/Daytona.png",
         description: "Crown of Swiss watchmaking"
     },
     {
         id: 3,
         name: "Patek Philippe",
-        image: "/assets/images/brands/patek-philippe-brand.jpg",
+        image: "./public/images/Patek Philippe/Nautilus.jpg",
         description: "Tradition of excellence since 1839"
     },
     {
         id: 4,
         name: "Audemars Piguet",
-        image: "/assets/images/brands/audemars-piguet-brand.jpg",
+        image: "./public/images/Audemars Piguet/Royal_Oak.png",
         description: "Masters of complications"
     },
     {
         id: 5,
         name: "Omega",
-        image: "/assets/images/brands/omega-brand.jpg",
+        image: "./public/images/Omega/Speedmaster.png",
         description: "Precision for every achievement"
     },
     {
         id: 6,
         name: "TAG Heuer",
-        image: "/assets/images/brands/tag-heuer-brand.jpg",
+        image: "./public/images/Tag_Heuer/Monaco.png",
         description: "Swiss avant-garde since 1860"
     }
 ];
@@ -42,22 +42,22 @@ export const mockModels = {
         {
             id: 1,
             name: "RM 27-04 Rafael Nadal",
-            price: 89.99, // ⭐ Cambié de 899.99 a 89.99
-            image: "/assets/images/rm-27-04.jpg",
+            price: 89.99,
+            image: "./public/images/RM/RM27-04.jpg",
             description: "Ultra-light tourbillon designed for extreme sports"
         },
         {
             id: 2,
             name: "RM 35-03 Automatic Rafael Nadal",
             price: 79.99, // ⭐ Cambié de 799.99 a 79.99
-            image: "/assets/images/rm-35-03.jpg",
+            image: "./public/images/RM/RM35-04.jpg",
             description: "Lightweight automatic movement"
         },
         {
             id: 3,
             name: "RM 11-03 Automatic Flyback Chronograph",
-            price: 74.99, // ⭐ Cambié de 749.99 a 74.99
-            image: "/assets/images/rm-11-03.jpg",
+            price: 74.99,
+            image: "./public/images/RM/RM11-03.jpg",
             description: "Flyback chronograph with annual calendar"
         }
     ],
@@ -65,22 +65,22 @@ export const mockModels = {
         {
             id: 4,
             name: "Submariner Date",
-            price: 59.99, // ⭐ Cambié de 599.99 a 59.99
-            image: "/assets/images/submariner.jpg",
+            price: 59.99,
+            image: "public/images/Rolex/Submariner_date .jpg",
             description: "Professional diving watch"
         },
         {
             id: 5,
             name: "GMT-Master II",
-            price: 64.99, // ⭐ Cambié de 649.99 a 64.99
-            image: "/assets/images/gmt-master.jpg",
+            price: 64.99,
+            image: "public/images/Rolex/GMT-masterII.png",
             description: "Dual time zone watch"
         },
         {
             id: 6,
             name: "Daytona",
-            price: 69.99, // ⭐ Cambié de 699.99 a 69.99
-            image: "/assets/images/daytona.jpg",
+            price: 69.99,
+            image: "public/images/Rolex/Daytona.png",
             description: "Racing chronograph"
         }
     ],
@@ -88,15 +88,15 @@ export const mockModels = {
         {
             id: 7,
             name: "Nautilus 5711/1A",
-            price: 84.99, // ⭐ Cambié de 849.99 a 84.99
-            image: "/assets/images/nautilus.jpg",
+            price: 84.99,
+            image: "public/images/Patek Philippe/Nautilus.jpg",
             description: "Luxury sports watch"
         },
         {
             id: 8,
             name: "Calatrava 5227",
-            price: 79.99, // ⭐ Cambié de 799.99 a 79.99
-            image: "/assets/images/calatrava.jpg",
+            price: 79.99,
+            image: "public/images/Patek Philippe/Calatrava.png",
             description: "Classic dress watch"
         }
     ],
@@ -104,8 +104,8 @@ export const mockModels = {
         {
             id: 9,
             name: "Royal Oak 15500ST",
-            price: 89.99, // ⭐ Cambié de 899.99 a 89.99
-            image: "/assets/images/royal-oak.jpg",
+            price: 89.99,
+            image: "public/images/Audemars Piguet/Royal_Oak.png",
             description: "Iconic octagonal bezel design"
         }
     ],
@@ -113,8 +113,8 @@ export const mockModels = {
         {
             id: 10,
             name: "Speedmaster Professional",
-            price: 44.99, // ⭐ Cambié de 449.99 a 44.99
-            image: "/assets/images/speedmaster.jpg",
+            price: 44.99,
+            image: "public/images/Omega/Speedmaster.png",
             description: "Moonwatch chronograph"
         }
     ],
@@ -122,8 +122,8 @@ export const mockModels = {
         {
             id: 11,
             name: "Monaco",
-            price: 39.99, // ⭐ Cambié de 399.99 a 39.99
-            image: "/assets/images/monaco.jpg",
+            price: 39.99,
+            image: "public/images/Tag_Heuer/Monaco.png",
             description: "Square case racing chronograph"
         }
     ]
