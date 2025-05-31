@@ -1,6 +1,6 @@
 // Actualizar src/hooks/useCart.js
 import { useMemo } from 'react';
-import { useCart as useCartContext } from '../context/CartContext';
+import { useCartContext } from '../context/CartContext';
 
 export function useCart() {
     const { state, dispatch } = useCartContext();
