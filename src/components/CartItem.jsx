@@ -2,44 +2,71 @@ import React from 'react';
 import { useCart } from '../hooks/useCart';
 import '../styles/components/CartItem.css';
 
-export default function CartItem({ id, name, image, price, quantity }) {
-    const { dispatch } = useCart();// entramos al contexto del carrito 
+export default function CartItem({ id, name, price, image, quantity }) {
+    const { dispatch } = useCart();
 
-    const updateQuantity = (newQuantity) => {
-        if (newQuantity === 0) {
-            dispatch({ type: 'REMOVE_FROM_CART', id }); //quita el producto 
-        } else {
-            dispatch({ type: 'UPDATE_QUANTITY', id, quantity: newQuantity });//literal el nombre dice jajaja 
+    const increaseQuantity = () => {
+        dispatch({
+            type: 'UPDATE_QUANTITY',
+            id: id,
+            quantity: quantity + 1
+        });
+    };
+
+    const decreaseQuantity = () => {
+        if (quantity > 1) {
+            dispatch({
+                type: 'UPDATE_QUANTITY',
+                id: id,
+                quantity: quantity - 1
+            });
         }
+    };
+
+    const removeItem = () => {
+        dispatch({
+            type: 'REMOVE_FROM_CART',
+            id: id
+        });
     };
 
     return (
         <div className="cart-item">
-            <img src={image} alt={name} className="cart-item__image" />
-            <div className="cart-item__info">
-                <h4>{name}</h4>
-                <p>${price.toLocaleString()}</p>
+            <div className="cart-item-image">
+                <img src={image} alt={name} />
             </div>
-            <div className="cart-item__controls">
-                <button //botones para modificar el estado global de carrito 
-                    onClick={() => updateQuantity(quantity - 1)}
-                    disabled={quantity <= 1}
-                    className="quantity-btn"
-                >
-                    -
-                </button>
-                <span className="quantity">{quantity}</span>
+
+            <div className="cart-item-info">
+                <h3 className="cart-item-name">{name}</h3>
+                <p className="cart-item-price">${price.toFixed(2)}</p>
+            </div>
+
+            {/* ⭐ CONTROLES DE CANTIDAD MEJORADOS */}
+            <div className="quantity-controls">
                 <button
-                    onClick={() => updateQuantity(quantity + 1)}
+                    className="quantity-btn decrease"
+                    onClick={decreaseQuantity}
+                    disabled={quantity <= 1}
+                >
+                    −
+                </button>
+                <span className="quantity-display">{quantity}</span>
+                <button
+                    className="quantity-btn increase"
+                    onClick={increaseQuantity}
                     disabled={quantity >= 9}
-                    className="quantity-btn"
                 >
                     +
                 </button>
             </div>
-            <div className="cart-item__subtotal">
-                ${(price * quantity).toFixed(2)}
+
+            <div className="cart-item-total">
+                <span className="item-total">${(price * quantity).toFixed(2)}</span>
             </div>
+
+            <button className="remove-btn" onClick={removeItem}>
+                🗑️
+            </button>
         </div>
     );
 }

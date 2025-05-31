@@ -43,6 +43,8 @@ export const mockModels = {
             id: 1,
             name: "RM 27-04 Rafael Nadal",
             price: 89.99,
+            originalPrice: 99.99,
+            discount: 10,
             image: "/images/RM/RM27-04.jpg",
             description: "Ultra-light tourbillon designed for extreme sports"
         },
@@ -57,6 +59,8 @@ export const mockModels = {
             id: 3,
             name: "RM 11-03 Automatic Flyback Chronograph",
             price: 74.99,
+            originalPrice: 89.99,
+            discount: 17,
             image: "/images/RM/RM11-03.jpg",
             description: "Flyback chronograph with annual calendar"
         }
@@ -73,13 +77,17 @@ export const mockModels = {
             id: 5,
             name: "GMT-Master II",
             price: 64.99,
-            image: "images/Rolex/GMT-masterII.png",
+            originalPrice: 74.99,
+            discount: 13,
+            image: "/images/Rolex/GMT-masterII.png",
             description: "Dual time zone watch"
         },
         {
             id: 6,
             name: "Daytona",
             price: 69.99,
+            originalPrice: 79.99,
+            discount: 13,
             image: "/images/Rolex/Daytona.png",
             description: "Racing chronograph"
         }
@@ -96,6 +104,8 @@ export const mockModels = {
             id: 8,
             name: "Calatrava 5227",
             price: 79.99,
+            originalPrice: 89.99,
+            discount: 11,
             image: "/images/Patek Philippe/Calatrava.png",
             description: "Classic dress watch"
         }
@@ -123,11 +133,14 @@ export const mockModels = {
             id: 11,
             name: "Monaco",
             price: 39.99,
+            originalPrice: 49.99,
+            discount: 20,
             image: "/images/Tag_Heuer/Monaco.png",
             description: "Square case racing chronograph"
         }
     ]
 };
+
 
 // Funciones simuladas de API
 export const fetchBrands = () => {

@@ -63,3 +63,107 @@
         padding: 1rem;
     }
 }
+
+.back-btn-floating {
+    position: fixed;
+    top: 100px;
+    left: 2rem;
+    background: rgba(0, 0, 0, 0.8);
+    color: #ffffff;
+    padding: 0.8rem 1.2rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.back-btn-floating:hover {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+/* ⭐ LAYOUT MÁS COMPACTO PARA PRODUCT DETAIL */
+.product-detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.product-detail__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+/* ⭐ ACCIONES DEL PRODUCTO */
+.product-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.back-link-inline {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    text-align: center;
+    padding: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.back-link-inline:hover {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+
+.reviews-section {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem 2rem;
+}
+
+/* ⭐ RESPONSIVE */
+@media (max-width: 768px) {
+    .back-btn-floating {
+        left: 1rem;
+        top: 80px;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .product-detail {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    .product-actions {
+        gap: 0.8rem;
+        margin-top: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .back-btn-floating {
+        left: 0.5rem;
+        right: 0.5rem;
+        text-align: center;
+    }
+}

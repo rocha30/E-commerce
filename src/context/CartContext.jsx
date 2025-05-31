@@ -1,9 +1,9 @@
-// src/context/CartContext.jsx
 import React, { createContext, useContext, useReducer } from 'react';
+
 
 const CartContext = createContext();
 
-const cartReducer = (state, action) => { //gestiona las acciones del carrito 
+const cartReducer = (state, action) => {
     switch (action.type) {
         case 'ADD_TO_CART':
             {
@@ -44,7 +44,7 @@ const cartReducer = (state, action) => { //gestiona las acciones del carrito
     }
 };
 
-export function CartProvider({ children }) {// 
+export function CartProvider({ children }) {
     const [state, dispatch] = useReducer(cartReducer, { items: [] });
 
     return (
