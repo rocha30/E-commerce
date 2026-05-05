@@ -1,63 +1,96 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from "react";
+import { userBehaviorService } from "../services/userBehaviorService";
 
-
+const DEFAULT_USER_ID = import.meta.env.VITE_DEFAULT_USER_ID || "USR-001";
 const CartContext = createContext();
 
-const cartReducer = (state, action) => {
-    switch (action.type) {
-        case 'ADD_TO_CART':
-            {
-                const existing = state.items.find(item => item.id === action.product.id);
-                if (existing) {
-                    return {
-                        ...state,
-                        items: state.items.map(item =>
-                            item.id === action.product.id
-                                ? { ...item, quantity: Math.min(item.quantity + 1, 9) }
-                                : item
-                        )
-                    };
-                }
-                return {
-                    ...state,
-                    items: [...state.items, { ...action.product, quantity: 1 }]
-                };
-            }
-        case 'REMOVE_FROM_CART':
-            return {
-                ...state,
-                items: state.items.filter(item => item.id !== action.id)
-            };
-        case 'UPDATE_QUANTITY':
-            return {
-                ...state,
-                items: state.items.map(item =>
-                    item.id === action.id
-                        ? { ...item, quantity: Math.max(0, Math.min(action.quantity, 9)) }
-                        : item
-                )
-            };
-        case 'CLEAR_CART':
-            return { ...state, items: [] };
-        default:
-            return state;
-    }
+const initialState = {
+  items: [],
+  loading: false,
+  error: null,
 };
 
-export function CartProvider({ children }) {
-    const [state, dispatch] = useReducer(cartReducer, { items: [] });
+const cartReducer = (state, action) => {
+  switch (action.type) {
+    case "SET_LOADING":
+      return { ...state, loading: action.value };
+    case "SET_ERROR":
+      return { ...state, error: action.value };
+    case "SET_ITEMS":
+      return { ...state, items: action.value || [] };
+    default:
+      return state;
+  }
+};
 
-    return (
-        <CartContext.Provider value={{ state, dispatch }}>
-            {children}
-        </CartContext.Provider>
-    );
+function normalizeItems(payload) {
+  const rawItems = Array.isArray(payload) ? payload : payload?.items || [];
+  return rawItems.map((item) => ({
+    id: item.idProducto || item.id,
+    idProducto: item.idProducto || item.id,
+    name: item.nombre || item.name || "Producto",
+    price: Number(item.precio ?? item.price ?? 0),
+    image: item.image || "/images/default-watch.jpg",
+    description: item.descripcion || item.description || "",
+    quantity: Number(item.cantidad ?? item.quantity ?? 1),
+  }));
+}
+
+export function CartProvider({ children }) {
+  const [state, rawDispatch] = useReducer(cartReducer, initialState);
+
+  const refreshCart = useCallback(async () => {
+    try {
+      rawDispatch({ type: "SET_LOADING", value: true });
+      rawDispatch({ type: "SET_ERROR", value: null });
+      const response = await userBehaviorService.getCart(DEFAULT_USER_ID);
+      rawDispatch({ type: "SET_ITEMS", value: normalizeItems(response) });
+    } catch (error) {
+      rawDispatch({ type: "SET_ERROR", value: error.message });
+    } finally {
+      rawDispatch({ type: "SET_LOADING", value: false });
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshCart();
+  }, [refreshCart]);
+
+  const dispatch = useCallback(async (action) => {
+    try {
+      rawDispatch({ type: "SET_ERROR", value: null });
+      if (action.type === "ADD_TO_CART") {
+        await userBehaviorService.addCartItem(DEFAULT_USER_ID, {
+          idProducto: action.product.idProducto || action.product.id,
+          cantidad: 1,
+        });
+      }
+      if (action.type === "REMOVE_FROM_CART") {
+        await userBehaviorService.removeCartItem(DEFAULT_USER_ID, action.id);
+      }
+      if (action.type === "UPDATE_QUANTITY") {
+        await userBehaviorService.updateCartItem(DEFAULT_USER_ID, action.id, {
+          cantidad: Math.max(1, Math.min(action.quantity, 99)),
+        });
+      }
+      if (action.type === "CLEAR_CART") {
+        await userBehaviorService.clearCart(DEFAULT_USER_ID);
+      }
+      await refreshCart();
+    } catch (error) {
+      rawDispatch({ type: "SET_ERROR", value: error.message });
+    }
+  }, [refreshCart]);
+
+  const value = useMemo(() => ({ state, dispatch, refreshCart }), [state, dispatch, refreshCart]);
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 export const useCartContext = () => {
-    const context = useContext(CartContext);
-    if (!context) {
-        throw new Error('useCartContext must be used within a CartProvider');
-    }
-    return context;
-}
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error("useCartContext must be used within a CartProvider");
+  }
+  return context;
+};

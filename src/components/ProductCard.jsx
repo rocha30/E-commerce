@@ -1,28 +1,30 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useCart } from '../hooks/useCart';
-import DiscountBadge from './DiscountBadge';
-import FavoriteButton from './FavoriteButton';
-import '../styles/components/ProductCard.css';
+import React from "react";
+import { Link } from "react-router-dom";
+import { useCart } from "../hooks/useCart";
+import DiscountBadge from "./DiscountBadge";
+import FavoriteButton from "./FavoriteButton";
+import "../styles/components/ProductCard.css";
 
-export default function ProductCard({ id, name, price, originalPrice, discount, image, description }) {
+export default function ProductCard({ id, idProducto, name, price, originalPrice, discount, image, description }) {
     const { dispatch } = useCart();
+    const productId = idProducto || id;
+    const safeImage = image || "/images/default-watch.jpg";
 
-    const addToCart = () => {
-        dispatch({
-            type: 'ADD_TO_CART',
-            product: { id, name, price, image, description }
+    const addToCart = async () => {
+        await dispatch({
+            type: "ADD_TO_CART",
+            product: { id: productId, idProducto: productId, name, price, image: safeImage, description },
         });
     };
 
     return (
         <div className="product-card">
             <DiscountBadge discount={discount} />
-            <FavoriteButton product={{ id, name, price, image, description }} />
+            <FavoriteButton product={{ id: productId, idProducto: productId, name, price, image: safeImage, description }} />
 
-            <Link to={`/product/${id}`} className="product-link">
+            <Link to={`/product/${productId}`} className="product-link">
                 <div className="product-image">
-                    <img src={image} alt={name} />
+                    <img src={safeImage} alt={name} />
                 </div>
                 <div className="product-info">
                     <h3>{name}</h3>
@@ -41,7 +43,7 @@ export default function ProductCard({ id, name, price, originalPrice, discount, 
                 </div>
             </Link>
             <button className="add-to-cart-btn" onClick={addToCart}>
-                Agregar al Carrito
+                Add to Cart
             </button>
         </div>
     );

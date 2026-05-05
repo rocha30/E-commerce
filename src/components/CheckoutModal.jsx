@@ -42,13 +42,13 @@ export default function CheckoutModal({ isOpen, onClose }) {
                 {!orderConfirmed ? (
                     <>
                         <div className="modal-header">
-                            <h2>Confirmar Compra</h2>
+                            <h2>Confirm Purchase</h2>
                             <button className="close-btn" onClick={handleCancel}>×</button>
                         </div>
 
                         <div className="modal-body">
                             <div className="order-summary">
-                                <h3>Resumen del Pedido</h3>
+                                <h3>Order Summary</h3>
                                 <div className="summary-items">
                                     {items.map(item => (
                                         <div key={item.id} className="summary-item">
@@ -64,12 +64,12 @@ export default function CheckoutModal({ isOpen, onClose }) {
 
                                 <div className="total-section">
                                     <div className="total-line">
-                                        <span>Productos ({itemCount})</span>
+                                        <span>Items ({itemCount})</span>
                                         <span>${total.toFixed(2)}</span>
                                     </div>
                                     <div className="total-line">
-                                        <span>Envío</span>
-                                        <span className="free">GRATIS</span>
+                                        <span>Shipping</span>
+                                        <span className="free">FREE</span>
                                     </div>
                                     <div className="total-final">
                                         <span>Total a Pagar</span>
@@ -91,7 +91,7 @@ export default function CheckoutModal({ isOpen, onClose }) {
                                     </div>
                                     <div className="info-item">
                                         <span className="icon">🔒</span>
-                                        <span>Pago 100% seguro</span>
+                                        <span>100% secure payment</span>
                                     </div>
                                 </div>
                             </div>
@@ -103,7 +103,7 @@ export default function CheckoutModal({ isOpen, onClose }) {
                                 onClick={handleCancel}
                                 disabled={isProcessing}
                             >
-                                Cancelar
+                                Cancel
                             </button>
                             <button
                                 className="confirm-btn"
@@ -113,10 +113,10 @@ export default function CheckoutModal({ isOpen, onClose }) {
                                 {isProcessing ? (
                                     <>
                                         <span className="spinner"></span>
-                                        Procesando...
+                                        Processing...
                                     </>
                                 ) : (
-                                    'Confirmar Compra'
+                                    'Confirm Purchase'
                                 )}
                             </button>
                         </div>
@@ -124,8 +124,8 @@ export default function CheckoutModal({ isOpen, onClose }) {
                 ) : (
                     <div className="success-message">
                         <div className="success-icon">✅</div>
-                        <h2>¡Compra Confirmada!</h2>
-                        <p>Tu pedido ha sido procesado exitosamente</p>
+                        <h2>Purchase Confirmed!</h2>
+                        <p>Your order has been processed successfully.</p>
                         <p className="order-number">Número de orden: #{orderId}</p>
                         <p className="success-note">Recibirás un email de confirmación en breve</p>
                     </div>

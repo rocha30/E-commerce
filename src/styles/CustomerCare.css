@@ -1,0 +1,59 @@
+.care-container {
+  min-height: 100vh;
+  padding: 7.5rem 2rem 2rem;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  color: #fff;
+  background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+}
+
+.care-hero {
+  margin-bottom: 2rem;
+}
+
+.care-hero h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 300;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.06em;
+}
+
+.care-hero p {
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 760px;
+  line-height: 1.6;
+}
+
+.care-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.care-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.care-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  color: #e8e8e8;
+}
+
+.care-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .care-container {
+    padding: 6.5rem 1rem 1rem;
+  }
+}

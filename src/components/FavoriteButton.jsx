@@ -1,28 +1,31 @@
-import React, { useState } from 'react';
-import { useFavorites } from '../hooks/useFavorites';
-import '../styles/components/FavoriteButton.css';
+import React, { useState } from "react";
+import { useFavorites } from "../hooks/useFavorites";
+import "../styles/components/FavoriteButton.css";
 
 export default function FavoriteButton({ product }) {
-    const { toggleFavorite, isFavorite } = useFavorites();
-    const [isAnimating, setIsAnimating] = useState(false);
+  const { toggleFavorite, isFavorite, loading } = useFavorites();
+  const [isAnimating, setIsAnimating] = useState(false);
+  const productId = product.idProducto || product.id;
 
-    const handleClick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+  const handleClick = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsAnimating(true);
+    try {
+      await toggleFavorite(product);
+    } finally {
+      setTimeout(() => setIsAnimating(false), 300);
+    }
+  };
 
-        setIsAnimating(true);
-        toggleFavorite(product);
-
-        setTimeout(() => setIsAnimating(false), 300);
-    };
-
-    return (
-        <button
-            className={`favorite-btn ${isFavorite(product.id) ? 'favorited' : ''} ${isAnimating ? 'animating' : ''}`}
-            onClick={handleClick}
-            title={isFavorite(product.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
-        >
-            {isFavorite(product.id) ? '❤️' : '🤍'}
-        </button>
-    );
+  return (
+    <button
+      className={`favorite-btn ${isFavorite(productId) ? "favorited" : ""} ${isAnimating ? "animating" : ""}`}
+      onClick={handleClick}
+      title={isFavorite(productId) ? "Remove from wishlist" : "Add to wishlist"}
+      disabled={loading}
+    >
+      {isFavorite(productId) ? "❤️" : "🤍"}
+    </button>
+  );
 }

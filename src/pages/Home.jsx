@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import '../styles/Home.css';
@@ -8,14 +8,6 @@ import hero1 from '../assets/images/hero1.webp';
 import hero2 from '../assets/images/hero2.webp';
 
 export default function Home() {
-    const [scrollY, setScrollY] = useState(0);
-
-    useEffect(() => {
-        const handleScroll = () => setScrollY(window.scrollY);
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
     return (
         <>
             <Navbar />

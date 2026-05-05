@@ -1,23 +1,24 @@
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import CartItem from "../components/CartItem";
+import { useCart } from "../hooks/useCart";
+import { userBehaviorService } from "../services/userBehaviorService";
+import "../styles/components/Cart.css";
+import "../styles/components/CheckoutModal.css";
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import CartItem from '../components/CartItem';
-import { useCart } from '../hooks/useCart';
-import '../styles/components/Cart.css';
-import '../styles/components/CheckoutModal.css';
-
-// ... resto del código igual que antes
+const DEFAULT_USER_ID = import.meta.env.VITE_DEFAULT_USER_ID || "USR-001";
 
 export default function Cart() {
-    const { items, total, hasError, itemCount, dispatch } = useCart();
+    const { items, total, hasError, itemCount, dispatch, loading, error } = useCart();
     const [showCheckoutModal, setShowCheckoutModal] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [orderConfirmed, setOrderConfirmed] = useState(false);
+    const [orderId, setOrderId] = useState(null);
 
-    const clearCart = () => {
-        dispatch({ type: 'CLEAR_CART' });
+    const clearCart = async () => {
+        await dispatch({ type: "CLEAR_CART" });
     };
 
     const handleCheckout = () => {
@@ -26,19 +27,21 @@ export default function Cart() {
 
     const handleConfirmOrder = async () => {
         setIsProcessing(true);
-
-        // Simular procesamiento
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        setIsProcessing(false);
-        setOrderConfirmed(true);
-
-        // Auto cerrar y limpiar
-        setTimeout(() => {
-            setShowCheckoutModal(false);
-            setOrderConfirmed(false);
-            clearCart();
-        }, 3000);
+        try {
+            const response = await userBehaviorService.createOrder(DEFAULT_USER_ID, {
+                items: items.map((item) => ({ idProducto: item.idProducto || item.id, cantidad: item.quantity })),
+            });
+            setOrderId(response.idPedido || response.orderId || "NO-ID");
+            setOrderConfirmed(true);
+            await clearCart();
+            setTimeout(() => {
+                setShowCheckoutModal(false);
+                setOrderConfirmed(false);
+                setOrderId(null);
+            }, 3000);
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const handleCloseModal = () => {
@@ -53,22 +56,24 @@ export default function Cart() {
             <Navbar />
             <main className="cart-container">
                 <div className="cart-header">
-                    <h1>Tu Carrito</h1>
+                    <h1>Your Cart</h1>
                     <div className="cart-count">
                         <span className="count-badge">{itemCount}</span>
                         <span className="count-text">
-                            {itemCount === 1 ? 'producto' : 'productos'}
+                            {itemCount === 1 ? "item" : "items"}
                         </span>
                     </div>
                 </div>
 
-                {items.length === 0 ? (
+                {loading ? (
+                    <div className="empty-cart"><h2>Loading cart...</h2></div>
+                ) : items.length === 0 ? (
                     <div className="empty-cart">
                         <div className="empty-cart-icon">🛒</div>
-                        <h2>Tu carrito está vacío</h2>
-                        <p>¡Descubre nuestra increíble colección de relojes de lujo!</p>
+                        <h2>Your cart is empty</h2>
+                        <p>Explore our premium collection of luxury watches.</p>
                         <Link to="/catalog" className="continue-shopping-btn">
-                            Explorar Catálogo
+                            Explore Catalog
                         </Link>
                     </div>
                 ) : (
@@ -81,16 +86,16 @@ export default function Cart() {
 
                         <div className="cart-summary">
                             <div className="summary-card">
-                                <h3>Resumen del Pedido</h3>
+                                <h3>Order Summary</h3>
 
                                 <div className="summary-line">
-                                    <span>Productos ({itemCount})</span>
+                                    <span>Items ({itemCount})</span>
                                     <span>${total.toFixed(2)}</span>
                                 </div>
 
                                 <div className="summary-line">
-                                    <span>Envío</span>
-                                    <span className="free-shipping">GRATIS</span>
+                                    <span>Shipping</span>
+                                    <span className="free-shipping">FREE</span>
                                 </div>
 
                                 <div className="summary-divider"></div>
@@ -100,10 +105,10 @@ export default function Cart() {
                                     <span className="total-amount">${total.toFixed(2)}</span>
                                 </div>
 
-                                {hasError && (
+                                {(hasError || error) && (
                                     <div className="cart-error">
                                         <span>⚠️</span>
-                                        <span>El total excede el límite de $999.99</span>
+                                        <span>{error || "The total exceeds the allowed limit"}</span>
                                     </div>
                                 )}
 
@@ -113,15 +118,15 @@ export default function Cart() {
                                         className="checkout-btn"
                                         onClick={handleCheckout}
                                     >
-                                        {hasError ? 'Total excede límite' : 'Proceder al Pago'}
+                                        {hasError ? "Total exceeds limit" : "Proceed to Checkout"}
                                     </button>
 
                                     <button onClick={clearCart} className="clear-btn">
-                                        Vaciar Carrito
+                                        Clear Cart
                                     </button>
 
                                     <Link to="/catalog" className="continue-shopping-link">
-                                        ← Continuar Comprando
+                                        ← Continue Shopping
                                     </Link>
                                 </div>
                             </div>
@@ -137,20 +142,20 @@ export default function Cart() {
                         {!orderConfirmed ? (
                             <>
                                 <div className="modal-header">
-                                    <h2>Confirmar Compra</h2>
+                                    <h2>Confirm Purchase</h2>
                                     <button className="close-btn" onClick={handleCloseModal}>×</button>
                                 </div>
 
                                 <div className="modal-body">
                                     <div className="order-summary">
-                                        <h3>Resumen del Pedido</h3>
+                                        <h3>Order Summary</h3>
                                         <div className="summary-items">
                                             {items.map(item => (
                                                 <div key={item.id} className="summary-item">
                                                     <img src={item.image} alt={item.name} />
                                                     <div className="item-details">
                                                         <span className="item-name">{item.name}</span>
-                                                        <span className="item-quantity">Cantidad: {item.quantity}</span>
+                                                        <span className="item-quantity">Quantity: {item.quantity}</span>
                                                     </div>
                                                     <span className="item-price">${(item.price * item.quantity).toFixed(2)}</span>
                                                 </div>
@@ -159,34 +164,34 @@ export default function Cart() {
 
                                         <div className="total-section">
                                             <div className="total-line">
-                                                <span>Productos ({itemCount})</span>
+                                                <span>Items ({itemCount})</span>
                                                 <span>${total.toFixed(2)}</span>
                                             </div>
                                             <div className="total-line">
-                                                <span>Envío</span>
-                                                <span className="free">GRATIS</span>
+                                                <span>Shipping</span>
+                                                <span className="free">FREE</span>
                                             </div>
                                             <div className="total-final">
-                                                <span>Total a Pagar</span>
+                                                <span>Total to Pay</span>
                                                 <span>${total.toFixed(2)}</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="payment-info">
-                                        <h3>Información de Entrega</h3>
+                                        <h3>Delivery Information</h3>
                                         <div className="delivery-info">
                                             <div className="info-item">
                                                 <span className="icon">📍</span>
-                                                <span>Entrega a domicilio gratuita</span>
+                                                <span>Free home delivery</span>
                                             </div>
                                             <div className="info-item">
                                                 <span className="icon">⏰</span>
-                                                <span>Tiempo estimado: 3-5 días hábiles</span>
+                                                <span>Estimated time: 3-5 business days</span>
                                             </div>
                                             <div className="info-item">
                                                 <span className="icon">🔒</span>
-                                                <span>Pago 100% seguro</span>
+                                                <span>100% secure payment</span>
                                             </div>
                                         </div>
                                     </div>
@@ -198,7 +203,7 @@ export default function Cart() {
                                         onClick={handleCloseModal}
                                         disabled={isProcessing}
                                     >
-                                        Cancelar
+                                        Cancel
                                     </button>
                                     <button
                                         className="confirm-btn"
@@ -208,10 +213,10 @@ export default function Cart() {
                                         {isProcessing ? (
                                             <>
                                                 <span className="spinner"></span>
-                                                Procesando...
+                                                Processing...
                                             </>
                                         ) : (
-                                            'Confirmar Compra'
+                                            "Confirm Purchase"
                                         )}
                                     </button>
                                 </div>
@@ -219,10 +224,10 @@ export default function Cart() {
                         ) : (
                             <div className="success-message">
                                 <div className="success-icon">✅</div>
-                                <h2>¡Compra Confirmada!</h2>
-                                <p>Tu pedido ha sido procesado exitosamente</p>
-                                <p className="order-number">Número de orden: #EX{Date.now().toString().slice(-6)}</p>
-                                <p className="success-note">Recibirás un email de confirmación en breve</p>
+                                <h2>Purchase Confirmed!</h2>
+                                <p>Your order has been processed successfully.</p>
+                                <p className="order-number">Order number: #{orderId || "NO-ID"}</p>
+                                <p className="success-note">You will receive a confirmation email shortly.</p>
                             </div>
                         )}
                     </div>

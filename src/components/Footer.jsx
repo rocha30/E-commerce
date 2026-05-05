@@ -25,10 +25,6 @@ export default function Footer() {
                         <h4>Shop</h4>
                         <ul>
                             <li><Link to="/catalog">All Watches</Link></li>
-                            <li><Link to="/brands">Brands</Link></li>
-                            <li><Link to="/collections">Collections</Link></li>
-                            <li><Link to="/new-arrivals">New Arrivals</Link></li>
-                            <li><Link to="/sale">Sale</Link></li>
                         </ul>
                     </div>
 

@@ -1,60 +1,62 @@
-// src/hooks/useFavorites.js - VERSION con localStorage
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
+import { userBehaviorService } from "../services/userBehaviorService";
+
+const DEFAULT_USER_ID = import.meta.env.VITE_DEFAULT_USER_ID || "USR-001";
+
+function normalizeWishlist(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.items)) return payload.items;
+  return [];
+}
 
 export function useFavorites() {
-    const [favorites, setFavorites] = useState(() => {
-        // Cargar favoritos del localStorage al inicializar
-        const saved = localStorage.getItem('exquisit-time-favorites');
-        return saved ? JSON.parse(saved) : [];
-    });
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    // Guardar en localStorage cada vez que cambien los favoritos
-    useEffect(() => {
-        localStorage.setItem('exquisit-time-favorites', JSON.stringify(favorites));
-    }, [favorites]);
+  const refresh = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await userBehaviorService.getWishlist(DEFAULT_USER_ID);
+      setFavorites(normalizeWishlist(response));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const addToFavorites = (product) => {
-        setFavorites(prev => {
-            const exists = prev.find(p => p.id === product.id);
-            if (!exists) {
-                console.log(`❤️ ${product.name} agregado a favoritos`);
-                return [...prev, product];
-            }
-            return prev;
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  const isFavorite = (productId) => favorites.some((p) => String(p.idProducto || p.id) === String(productId));
+
+  const toggleFavorite = async (product) => {
+    try {
+      setError(null);
+      if (isFavorite(product.idProducto || product.id)) {
+        await userBehaviorService.removeWishlistItem(DEFAULT_USER_ID, product.idProducto || product.id);
+      } else {
+        await userBehaviorService.addWishlistItem(DEFAULT_USER_ID, {
+          idProducto: product.idProducto || product.id,
         });
-    };
+      }
+      await refresh();
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
 
-    const removeFromFavorites = (productId) => {
-        setFavorites(prev => {
-            const filtered = prev.filter(p => p.id !== productId);
-            const removed = prev.find(p => p.id === productId);
-            if (removed) {
-                console.log(`💔 ${removed.name} removido de favoritos`);
-            }
-            return filtered;
-        });
-    };
-
-    const isFavorite = (productId) => {
-        return favorites.some(p => p.id === productId);
-    };
-
-    const toggleFavorite = (product) => {
-        if (isFavorite(product.id)) {
-            removeFromFavorites(product.id);
-            return false;
-        } else {
-            addToFavorites(product);
-            return true;
-        }
-    };
-
-    return {
-        addToFavorites,
-        removeFromFavorites,
-        isFavorite,
-        toggleFavorite,
-        getFavorites: () => favorites,
-        favoritesCount: favorites.length
-    };
+  return {
+    favorites,
+    favoritesCount: favorites.length,
+    loading,
+    error,
+    refresh,
+    isFavorite,
+    toggleFavorite,
+  };
 }

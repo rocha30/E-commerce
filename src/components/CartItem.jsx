@@ -1,31 +1,31 @@
-import React from 'react';
-import { useCart } from '../hooks/useCart';
-import '../styles/components/CartItem.css';
+import React from "react";
+import { useCart } from "../hooks/useCart";
+import "../styles/components/CartItem.css";
 
 export default function CartItem({ id, name, price, image, quantity }) {
     const { dispatch } = useCart();
 
-    const increaseQuantity = () => {
-        dispatch({
-            type: 'UPDATE_QUANTITY',
+    const increaseQuantity = async () => {
+        await dispatch({
+            type: "UPDATE_QUANTITY",
             id: id,
             quantity: quantity + 1
         });
     };
 
-    const decreaseQuantity = () => {
+    const decreaseQuantity = async () => {
         if (quantity > 1) {
-            dispatch({
-                type: 'UPDATE_QUANTITY',
+            await dispatch({
+                type: "UPDATE_QUANTITY",
                 id: id,
                 quantity: quantity - 1
             });
         }
     };
 
-    const removeItem = () => {
-        dispatch({
-            type: 'REMOVE_FROM_CART',
+    const removeItem = async () => {
+        await dispatch({
+            type: "REMOVE_FROM_CART",
             id: id
         });
     };
