@@ -50,4 +50,50 @@ export const recommendationService = {
       "No backend recommendation endpoint is available. Implement one of: GET /users/:id/recommendations, GET /recommendations?userId=..., GET /products/recommendations?userId=..., or POST /query preset=userRecommendations."
     );
   },
+
+  async testRecommendationsUpdate(idUsuario, targetProductId) {
+    const encodedUser = encodeURIComponent(idUsuario);
+    const encodedProduct = encodeURIComponent(targetProductId);
+
+    const getRecIds = async () => {
+      const response = await apiClient.get(`/products/recommendations?userId=${encodedUser}`);
+      const rows = extractList(response?.data ?? response);
+      return rows
+        .slice(0, 10)
+        .map((p) => p?.idProducto || p?.id)
+        .filter(Boolean)
+        .map(String);
+    };
+
+    const before = await getRecIds();
+
+    await apiClient.post(`/users/${encodedUser}/views/${encodedProduct}`, {
+      secondsOnPage: 60,
+    });
+    await apiClient.post(`/users/${encodedUser}/cart/items`, {
+      idProducto: targetProductId,
+      cantidad: 1,
+    });
+    await apiClient.post(`/users/${encodedUser}/wishlist/items`, {
+      idProducto: targetProductId,
+    });
+
+    const after = await getRecIds();
+    const overlap = before.filter((id) => after.includes(id)).length;
+    const overlapPct = Math.round((overlap / Math.max(before.length, 1)) * 100);
+    const updated = before.join(",") !== after.join(",");
+    const entered = after.filter((id) => !before.includes(id));
+    const exited = before.filter((id) => !after.includes(id));
+    const moved = before.filter(
+      (id, index) => after.includes(id) && after.indexOf(id) !== index
+    );
+    const changeType =
+      entered.length || exited.length
+        ? "composition"
+        : moved.length
+          ? "reorder"
+          : "none";
+
+    return { before, after, updated, overlapPct, entered, exited, moved, changeType };
+  },
 };

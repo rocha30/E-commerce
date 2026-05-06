@@ -3,15 +3,15 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import CartItem from "../components/CartItem";
+import { useUser } from "../context/UserContext";
 import { useCart } from "../hooks/useCart";
 import { userBehaviorService } from "../services/userBehaviorService";
 import "../styles/components/Cart.css";
 import "../styles/components/CheckoutModal.css";
 
-const DEFAULT_USER_ID = import.meta.env.VITE_DEFAULT_USER_ID || "USR-001";
-
 export default function Cart() {
-    const { items, total, hasError, itemCount, dispatch, loading, error } = useCart();
+    const { userId } = useUser();
+    const { items, total, itemCount, dispatch, loading, error } = useCart();
     const [showCheckoutModal, setShowCheckoutModal] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [orderConfirmed, setOrderConfirmed] = useState(false);
@@ -28,7 +28,7 @@ export default function Cart() {
     const handleConfirmOrder = async () => {
         setIsProcessing(true);
         try {
-            const response = await userBehaviorService.createOrder(DEFAULT_USER_ID, {
+            const response = await userBehaviorService.createOrder(userId, {
                 items: items.map((item) => ({ idProducto: item.idProducto || item.id, cantidad: item.quantity })),
             });
             setOrderId(response.idPedido || response.orderId || "NO-ID");
@@ -105,20 +105,20 @@ export default function Cart() {
                                     <span className="total-amount">${total.toFixed(2)}</span>
                                 </div>
 
-                                {(hasError || error) && (
+                                {error && (
                                     <div className="cart-error">
                                         <span>⚠️</span>
-                                        <span>{error || "The total exceeds the allowed limit"}</span>
+                                        <span>{error}</span>
                                     </div>
                                 )}
 
                                 <div className="cart-actions">
                                     <button
-                                        disabled={hasError || items.length === 0}
+                                        disabled={items.length === 0}
                                         className="checkout-btn"
                                         onClick={handleCheckout}
                                     >
-                                        {hasError ? "Total exceeds limit" : "Proceed to Checkout"}
+                                        Proceed to Checkout
                                     </button>
 
                                     <button onClick={clearCart} className="clear-btn">

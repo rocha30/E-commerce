@@ -24,11 +24,17 @@ export function extractList(payload) {
     raw.results,
     raw.records,
     raw.rows,
+    raw.cart,
+    raw.wishlist,
+    raw.users,
+    raw.usuarios,
     raw.nodes,
     raw.brands,
     raw.categories,
     raw.categorias,
     raw.data,
+    raw.cart?.items,
+    raw.wishlist?.items,
   ];
 
   for (const c of candidates) {
@@ -51,19 +57,39 @@ export function extractPagination(payload, fallbackTotalPages = 1) {
     return { totalPages: fallbackTotalPages, total: 0 };
   }
   const top = Array.isArray(payload) ? {} : typeof payload === "object" ? payload : {};
-  const meta = top.meta || top.pagination || {};
+  const raw = unwrapPayload(payload);
+  const data = Array.isArray(raw) ? {} : typeof raw === "object" ? raw : {};
+  const topMeta = top.meta || top.pagination || {};
+  const dataMeta = data.meta || data.pagination || {};
   const totalPages = Number(
     top.totalPages ??
       top.total_pages ??
       top.pages ??
       top.lastPage ??
-      meta.totalPages ??
-      meta.total_pages ??
-      meta.pages ??
+      topMeta.totalPages ??
+      topMeta.total_pages ??
+      topMeta.pages ??
+      data.totalPages ??
+      data.total_pages ??
+      data.pages ??
+      data.lastPage ??
+      dataMeta.totalPages ??
+      dataMeta.total_pages ??
+      dataMeta.pages ??
       fallbackTotalPages
   );
   const total = Number(
-    top.total ?? top.totalCount ?? top.count ?? meta.total ?? meta.count ?? 0
+    top.total ??
+      top.totalCount ??
+      top.count ??
+      topMeta.total ??
+      topMeta.count ??
+      data.total ??
+      data.totalCount ??
+      data.count ??
+      dataMeta.total ??
+      dataMeta.count ??
+      0
   );
   return {
     totalPages: Number.isFinite(totalPages) && totalPages > 0 ? totalPages : fallbackTotalPages,

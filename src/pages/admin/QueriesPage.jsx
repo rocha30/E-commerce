@@ -2,26 +2,25 @@ import React, { useState } from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import AdminNav from "../../components/graph/AdminNav";
+import { useUser } from "../../context/UserContext";
 import { analyticsService } from "../../services/analyticsService";
 import { recommendationService } from "../../services/recommendationService";
 import { diagnosticsService } from "../../services/diagnosticsService";
 
-const DEFAULT_USER_ID = import.meta.env.VITE_DEFAULT_USER_ID || "USR-001";
-
-const queryMap = {
-  topViewedProducts: () => analyticsService.getTopViewedProducts(),
-  topWishlistProducts: () => analyticsService.getTopWishlistProducts(),
-  salesByBrand: () => analyticsService.getSalesByBrand(),
-  recommendationsByUser: () => recommendationService.getUserRecommendations(DEFAULT_USER_ID),
-  topCartProducts: () => analyticsService.getTopCartProducts(),
-  graphHealth: () => diagnosticsService.getConnectivity(),
-};
-
 export default function QueriesPage() {
+  const { userId } = useUser();
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
   const execute = async (queryName) => {
+    const queryMap = {
+      topViewedProducts: () => analyticsService.getTopViewedProducts(),
+      topWishlistProducts: () => analyticsService.getTopWishlistProducts(),
+      salesByBrand: () => analyticsService.getSalesByBrand(),
+      recommendationsByUser: () => recommendationService.getUserRecommendations(userId),
+      topCartProducts: () => analyticsService.getTopCartProducts(),
+      graphHealth: () => diagnosticsService.getConnectivity(),
+    };
     try {
       setError(null);
       const response = await queryMap[queryName]();

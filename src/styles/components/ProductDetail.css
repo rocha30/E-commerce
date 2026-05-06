@@ -44,6 +44,15 @@
     margin-bottom: 1rem;
 }
 
+.add-to-cart-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.85;
+}
+
+.add-to-cart-btn--added {
+    background: #b33939;
+}
+
 .back-link {
     display: inline-block;
     color: #666;

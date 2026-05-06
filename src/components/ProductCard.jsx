@@ -1,25 +1,47 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../hooks/useCart";
-import DiscountBadge from "./DiscountBadge";
 import FavoriteButton from "./FavoriteButton";
 import "../styles/components/ProductCard.css";
 
-export default function ProductCard({ id, idProducto, name, price, originalPrice, discount, image, description }) {
-    const { dispatch } = useCart();
+export default function ProductCard({ id, idProducto, name, price, image, description }) {
+    const { items, dispatch } = useCart();
+    const [isAdding, setIsAdding] = useState(false);
     const productId = idProducto || id;
     const safeImage = image || "/images/default-watch.jpg";
+    const productIdText = String(productId);
+    const cartItem = useMemo(
+        () =>
+            items.find(
+                (item) =>
+                    String(item.idProducto ?? item.id) === productIdText
+            ),
+        [items, productIdText]
+    );
+    const isInCart = Boolean(cartItem);
 
     const addToCart = async () => {
-        await dispatch({
-            type: "ADD_TO_CART",
-            product: { id: productId, idProducto: productId, name, price, image: safeImage, description },
-        });
+        if (isAdding) return;
+        setIsAdding(true);
+        try {
+            if (isInCart) {
+                await dispatch({
+                    type: "REMOVE_FROM_CART",
+                    id: cartItem?.idProducto || cartItem?.id || productId,
+                });
+            } else {
+                await dispatch({
+                    type: "ADD_TO_CART",
+                    product: { id: productId, idProducto: productId, name, price, image: safeImage, description },
+                });
+            }
+        } finally {
+            setIsAdding(false);
+        }
     };
 
     return (
         <div className="product-card">
-            <DiscountBadge discount={discount} />
             <FavoriteButton product={{ id: productId, idProducto: productId, name, price, image: safeImage, description }} />
 
             <Link to={`/product/${productId}`} className="product-link">
@@ -31,19 +53,16 @@ export default function ProductCard({ id, idProducto, name, price, originalPrice
                     <p className="product-description">{description}</p>
 
                     <div className="price-container">
-                        {originalPrice ? (
-                            <>
-                                <span className="original-price">${originalPrice.toLocaleString()}</span>
-                                <span className="current-price">${price.toLocaleString()}</span>
-                            </>
-                        ) : (
-                            <span className="current-price">${price.toLocaleString()}</span>
-                        )}
+                        <span className="current-price">${price.toLocaleString()}</span>
                     </div>
                 </div>
             </Link>
-            <button className="add-to-cart-btn" onClick={addToCart}>
-                Add to Cart
+            <button
+                className={`add-to-cart-btn${isInCart ? " add-to-cart-btn--added" : ""}`}
+                onClick={addToCart}
+                disabled={isAdding}
+            >
+                {isAdding ? "Updating..." : isInCart ? "Remove from cart" : "Add to Cart"}
             </button>
         </div>
     );

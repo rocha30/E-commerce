@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { triggerRecommendationRefresh } from '../utils/recommendationSync';
 import '../styles/Home.css';
 
 import heroImage from '../assets/images/hero.jpg';
@@ -8,6 +9,10 @@ import hero1 from '../assets/images/hero1.webp';
 import hero2 from '../assets/images/hero2.webp';
 
 export default function Home() {
+    useEffect(() => {
+        triggerRecommendationRefresh("enter-home");
+    }, []);
+
     return (
         <>
             <Navbar />

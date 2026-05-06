@@ -1,16 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ProductReviews from "../components/ProductReviews";
-import DiscountBadge from "../components/DiscountBadge";
 import FavoriteButton from "../components/FavoriteButton";
+import { useUser } from "../context/UserContext";
 import { useCart } from "../hooks/useCart";
 import { catalogService } from "../services/catalogService";
 import { userBehaviorService } from "../services/userBehaviorService";
 import "../styles/components/ProductDetail.css";
-
-const DEFAULT_USER_ID = import.meta.env.VITE_DEFAULT_USER_ID || "USR-001";
 
 function mapProduct(product) {
   return {
@@ -18,21 +16,21 @@ function mapProduct(product) {
     idProducto: product.idProducto || product.id,
     name: product.nombre || product.name,
     price: Number(product.precio ?? product.price ?? 0),
-    originalPrice: Number(product.precioOriginal ?? product.originalPrice ?? 0) || null,
     image: product.image || "/images/default-watch.jpg",
     description: product.descripcion || product.description || "No description",
-    discount: Number(product.descuento ?? product.discount ?? 0),
   };
 }
 
 export default function ProductDetail() {
   const { id } = useParams();
-  const { dispatch } = useCart();
+  const { userId } = useUser();
+  const { items, dispatch } = useCart();
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -52,7 +50,7 @@ export default function ProductDetail() {
           ? relRaw
           : relRaw?.items || relRaw?.products || [];
         setRelated(relList.map(mapProduct));
-        await userBehaviorService.trackView(DEFAULT_USER_ID, loadedProduct.idProducto, {
+        await userBehaviorService.trackView(userId, loadedProduct.idProducto, {
           secondsOnPage: 0,
         });
       } catch (err) {
@@ -62,12 +60,30 @@ export default function ProductDetail() {
       }
     };
     loadProduct();
-  }, [id]);
+  }, [id, userId]);
 
   const addToCart = async () => {
-    if (!product) return;
-    await dispatch({ type: "ADD_TO_CART", product });
+    if (!product || isAdding) return;
+    setIsAdding(true);
+    try {
+      if (isInCart) {
+        await dispatch({
+          type: "REMOVE_FROM_CART",
+          id: product.idProducto || product.id,
+        });
+      } else {
+        await dispatch({ type: "ADD_TO_CART", product });
+      }
+    } finally {
+      setIsAdding(false);
+    }
   };
+
+  const isInCart = useMemo(() => {
+    if (!product) return false;
+    const productId = String(product.idProducto || product.id);
+    return items.some((item) => String(item.idProducto || item.id) === productId);
+  }, [items, product]);
 
   if (loading) {
     return (
@@ -99,7 +115,6 @@ export default function ProductDetail() {
       <Link to="/catalog" className="back-btn-floating">← Back to Catalog</Link>
       <main className="product-detail">
         <div className="product-detail__image">
-          <DiscountBadge discount={product.discount} />
           <FavoriteButton product={product} />
           <img src={product.image} alt={product.name} />
         </div>
@@ -108,17 +123,16 @@ export default function ProductDetail() {
           <h1>{product.name}</h1>
           <p className="product-detail__description">{product.description}</p>
           <div className="price-container">
-            {product.originalPrice ? (
-              <>
-                <span className="original-price">${product.originalPrice.toLocaleString()}</span>
-                <span className="current-price">${product.price.toLocaleString()}</span>
-              </>
-            ) : (
-              <span className="current-price">${product.price.toLocaleString()}</span>
-            )}
+            <span className="current-price">${product.price.toLocaleString()}</span>
           </div>
           <div className="product-actions">
-            <button onClick={addToCart} className="add-to-cart-btn">Add to Cart</button>
+            <button
+              onClick={addToCart}
+              className={`add-to-cart-btn${isInCart ? " add-to-cart-btn--added" : ""}`}
+              disabled={isAdding}
+            >
+              {isAdding ? "Updating..." : isInCart ? "Remove from cart" : "Add to Cart"}
+            </button>
             <Link to="/catalog" className="back-link-inline">← Continue Shopping</Link>
           </div>
         </div>

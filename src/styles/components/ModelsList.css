@@ -132,6 +132,18 @@
     box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
 }
 
+.add-to-cart-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.85;
+    transform: none;
+    box-shadow: none;
+}
+
+.add-to-cart-btn--added {
+    background: linear-gradient(135deg, #b33939 0%, #8a2828 100%);
+    box-shadow: 0 4px 15px rgba(179, 57, 57, 0.35);
+}
+
 
 @media (max-width: 768px) {
     .models-grid {

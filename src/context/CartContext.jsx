@@ -1,7 +1,8 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from "react";
 import { userBehaviorService } from "../services/userBehaviorService";
+import { useUser } from "./UserContext";
+import { extractList } from "../utils/normalizeApi";
 
-const DEFAULT_USER_ID = import.meta.env.VITE_DEFAULT_USER_ID || "USR-001";
 const CartContext = createContext();
 
 const initialState = {
@@ -24,7 +25,7 @@ const cartReducer = (state, action) => {
 };
 
 function normalizeItems(payload) {
-  const rawItems = Array.isArray(payload) ? payload : payload?.items || [];
+  const rawItems = extractList(payload);
   return rawItems.map((item) => ({
     id: item.idProducto || item.id,
     idProducto: item.idProducto || item.id,
@@ -36,21 +37,44 @@ function normalizeItems(payload) {
   }));
 }
 
+function toCartItem(product) {
+  const id = product.idProducto || product.id;
+  return {
+    id,
+    idProducto: id,
+    name: product.nombre || product.name || "Producto",
+    price: Number(product.precio ?? product.price ?? 0),
+    image: product.image || "/images/default-watch.jpg",
+    description: product.descripcion || product.description || "",
+    quantity: Number(product.cantidad ?? product.quantity ?? 1) || 1,
+  };
+}
+
+function scheduleRefresh(refreshFn, delay = 450) {
+  if (typeof window === "undefined") return;
+  window.setTimeout(() => {
+    refreshFn().catch(() => {
+      // keep optimistic state if delayed sync fails
+    });
+  }, delay);
+}
+
 export function CartProvider({ children }) {
+  const { userId } = useUser();
   const [state, rawDispatch] = useReducer(cartReducer, initialState);
 
   const refreshCart = useCallback(async () => {
     try {
       rawDispatch({ type: "SET_LOADING", value: true });
       rawDispatch({ type: "SET_ERROR", value: null });
-      const response = await userBehaviorService.getCart(DEFAULT_USER_ID);
+      const response = await userBehaviorService.getCart(userId);
       rawDispatch({ type: "SET_ITEMS", value: normalizeItems(response) });
     } catch (error) {
       rawDispatch({ type: "SET_ERROR", value: error.message });
     } finally {
       rawDispatch({ type: "SET_LOADING", value: false });
     }
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     refreshCart();
@@ -60,31 +84,65 @@ export function CartProvider({ children }) {
     try {
       rawDispatch({ type: "SET_ERROR", value: null });
       if (action.type === "ADD_TO_CART") {
-        await userBehaviorService.addCartItem(DEFAULT_USER_ID, {
-          idProducto: action.product.idProducto || action.product.id,
+        const incoming = toCartItem(action.product || {});
+        await userBehaviorService.addCartItem(userId, {
+          idProducto: incoming.idProducto,
           cantidad: 1,
-          nombre: action.product.nombre || action.product.name,
-          precio: action.product.precio ?? action.product.price,
-          image: action.product.image,
-          descripcion: action.product.descripcion || action.product.description,
+          nombre: incoming.name,
+          precio: incoming.price,
+          image: incoming.image,
+          descripcion: incoming.description,
         });
+        const existing = state.items.find((item) => String(item.idProducto || item.id) === String(incoming.idProducto));
+        if (existing) {
+          rawDispatch({
+            type: "SET_ITEMS",
+            value: state.items.map((item) =>
+              String(item.idProducto || item.id) === String(incoming.idProducto)
+                ? { ...item, quantity: Math.min(99, Number(item.quantity || 1) + 1) }
+                : item
+            ),
+          });
+        } else {
+          rawDispatch({ type: "SET_ITEMS", value: [...state.items, incoming] });
+        }
+        scheduleRefresh(refreshCart);
       }
       if (action.type === "REMOVE_FROM_CART") {
-        await userBehaviorService.removeCartItem(DEFAULT_USER_ID, action.id);
+        await userBehaviorService.removeCartItem(userId, action.id);
+        rawDispatch({
+          type: "SET_ITEMS",
+          value: state.items.filter((item) => String(item.idProducto || item.id) !== String(action.id)),
+        });
+        scheduleRefresh(refreshCart);
       }
       if (action.type === "UPDATE_QUANTITY") {
-        await userBehaviorService.updateCartItem(DEFAULT_USER_ID, action.id, {
-          cantidad: Math.max(1, Math.min(action.quantity, 99)),
+        const nextQty = Math.max(1, Math.min(action.quantity, 99));
+        await userBehaviorService.updateCartItem(userId, action.id, {
+          cantidad: nextQty,
         });
+        rawDispatch({
+          type: "SET_ITEMS",
+          value: state.items.map((item) =>
+            String(item.idProducto || item.id) === String(action.id)
+              ? { ...item, quantity: nextQty }
+              : item
+          ),
+        });
+        scheduleRefresh(refreshCart);
       }
       if (action.type === "CLEAR_CART") {
-        await userBehaviorService.clearCart(DEFAULT_USER_ID);
+        await userBehaviorService.clearCart(userId);
+        rawDispatch({ type: "SET_ITEMS", value: [] });
+        scheduleRefresh(refreshCart);
       }
-      await refreshCart();
+      if (action.type !== "ADD_TO_CART" && action.type !== "REMOVE_FROM_CART" && action.type !== "UPDATE_QUANTITY" && action.type !== "CLEAR_CART") {
+        await refreshCart();
+      }
     } catch (error) {
       rawDispatch({ type: "SET_ERROR", value: error.message });
     }
-  }, [refreshCart]);
+  }, [refreshCart, state.items, userId]);
 
   const value = useMemo(() => ({ state, dispatch, refreshCart }), [state, dispatch, refreshCart]);
 
