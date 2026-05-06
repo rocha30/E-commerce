@@ -36,7 +36,7 @@ export default function NodeDetailPage() {
       if (property.key) acc[property.key] = property.value;
       return acc;
     }, {});
-    await nodeService.updateProperties(elementId, { properties: values });
+    await nodeService.patchProperties(elementId, { properties: values });
     const response = await nodeService.getById(elementId);
     setNode(response.data || response);
   };

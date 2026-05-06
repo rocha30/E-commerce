@@ -3,13 +3,23 @@ import { useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
+import { API_BASE_URL } from "../services/apiClient";
 import { catalogService } from "../services/catalogService";
+import { extractList } from "../utils/normalizeApi";
 import "../styles/Catalog.css";
 
+const PAGE_SIZE = 12;
+
 function mapProduct(product) {
+  const rawId =
+    product.idProducto ??
+    product.id ??
+    product._id ??
+    product.sku ??
+    product.codigo;
   return {
-    id: product.idProducto || product.id,
-    idProducto: product.idProducto || product.id,
+    id: rawId != null ? String(rawId) : undefined,
+    idProducto: rawId != null ? String(rawId) : undefined,
     name: product.nombre || product.name,
     price: Number(product.precio ?? product.price ?? 0),
     originalPrice: Number(product.precioOriginal ?? product.originalPrice ?? 0) || null,
@@ -28,6 +38,7 @@ export default function Catalog() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filterWarning, setFilterWarning] = useState(null);
 
   const [filters, setFilters] = useState({
     search: searchParams.get("search") || "",
@@ -40,15 +51,30 @@ export default function Catalog() {
 
   useEffect(() => {
     const loadFilterData = async () => {
+      setFilterWarning(null);
       try {
-        const [brandsResponse, categoriesResponse] = await Promise.all([
+        const [brandsResponse, categoriesResponse] = await Promise.allSettled([
           catalogService.getBrands(),
           catalogService.getCategories(),
         ]);
-        setBrands(brandsResponse.data || brandsResponse || []);
-        setCategories(categoriesResponse.data || categoriesResponse || []);
+        const warnings = [];
+        if (brandsResponse.status === "fulfilled") {
+          const raw = brandsResponse.value?.data ?? brandsResponse.value;
+          setBrands(extractList(raw));
+        } else {
+          setBrands([]);
+          warnings.push(`Brands: ${brandsResponse.reason?.message || brandsResponse.reason}`);
+        }
+        if (categoriesResponse.status === "fulfilled") {
+          const raw = categoriesResponse.value?.data ?? categoriesResponse.value;
+          setCategories(extractList(raw));
+        } else {
+          setCategories([]);
+          warnings.push(`Categories: ${categoriesResponse.reason?.message || categoriesResponse.reason}`);
+        }
+        setFilterWarning(warnings.length ? warnings.join(" · ") : null);
       } catch (err) {
-        setError(err.message);
+        setFilterWarning(err.message);
       }
     };
     loadFilterData();
@@ -60,8 +86,6 @@ export default function Catalog() {
       setError(null);
       try {
         const response = await catalogService.getProducts({
-          page,
-          limit: 12,
           search: filters.search || undefined,
           brand: filters.brand || undefined,
           category: filters.category || undefined,
@@ -69,10 +93,11 @@ export default function Catalog() {
           maxPrice: filters.maxPrice || undefined,
           available: filters.available || undefined,
         });
-        const payload = response.data || response;
-        const items = payload.items || payload.products || [];
-        setProducts(items.map(mapProduct));
-        setTotalPages(Number(payload.totalPages || 1));
+        const payload = response.data ?? response;
+        const items = extractList(payload);
+        const mapped = items.map(mapProduct);
+        setProducts(mapped);
+        setTotalPages(Math.max(1, Math.ceil(mapped.length / PAGE_SIZE)));
       } catch (err) {
         setError(err.message);
       } finally {
@@ -80,7 +105,7 @@ export default function Catalog() {
       }
     };
     loadProducts();
-  }, [filters, page]);
+  }, [filters]);
 
   const canGoBack = useMemo(() => page > 1, [page]);
   const canGoNext = useMemo(() => page < totalPages, [page, totalPages]);
@@ -96,6 +121,12 @@ export default function Catalog() {
       <Navbar />
       <main className="catalog-container">
         <h1 className="catalog-title">Collection</h1>
+
+        {filterWarning && (
+          <p className="catalog-status" style={{ marginBottom: 12 }}>
+            Filters: {filterWarning}
+          </p>
+        )}
 
         <section className="catalog-filters-section">
           <div className="catalog-filters-grid">
@@ -127,13 +158,25 @@ export default function Catalog() {
         </section>
 
         {loading && <p className="catalog-status">Loading catalog...</p>}
-        {error && <p className="catalog-status">Error: {error}</p>}
+        {error && (
+          <div className="catalog-status" style={{ marginBottom: 16 }}>
+            <p style={{ margin: "0 0 8px" }}>Error: {error}</p>
+            <p style={{ margin: 0, fontSize: "0.9em", opacity: 0.85 }}>
+              API base in use: <code>{API_BASE_URL}</code>
+              {" — "}
+              Set <code>VITE_API_URL</code> in <code>.env</code> to match your backend (include <code>/api</code> only if routes are mounted there), then restart{" "}
+              <code>npm run dev</code>.
+            </p>
+          </div>
+        )}
 
         {!loading && !error && (
           <section className="models-section">
             <div className="models-grid">
-              {products.map((model) => (
-                <ProductCard key={model.idProducto} {...model} />
+              {products
+                .slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+                .map((model) => (
+                <ProductCard key={model.idProducto || model.id} {...model} />
               ))}
             </div>
             {products.length === 0 && <p className="catalog-status">No products found for the selected filters.</p>}

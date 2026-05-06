@@ -12,7 +12,8 @@ export default function RubricStatusPage() {
     const load = async () => {
       try {
         const response = await rubricService.getStatus();
-        setStatus(response.data || response || {});
+        const body = response?.data ?? response ?? {};
+        setStatus(body);
       } catch (err) {
         setError(err.message);
       }
@@ -26,12 +27,19 @@ export default function RubricStatusPage() {
       <main className="catalog-container">
         <h1 className="admin-page-title">Rubric Status</h1>
         <AdminNav />
-        {error && <p>Error: {error}</p>}
-        <ul>
-          {Object.entries(status).map(([key, value]) => (
-            <li key={key}>{key}: {String(value)}</li>
-          ))}
-        </ul>
+        {error && <p className="catalog-status">Error: {error}</p>}
+        {status._endpointMissing && (
+          <p className="catalog-status">
+            {status.message || "Rubric status is not available on this API."}
+          </p>
+        )}
+        {!status._endpointMissing && (
+          <ul>
+            {Object.entries(status).map(([key, value]) => (
+              <li key={key}>{key}: {String(value)}</li>
+            ))}
+          </ul>
+        )}
       </main>
       <Footer />
     </>

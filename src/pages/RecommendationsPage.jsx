@@ -1,10 +1,27 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import ProductCard from "../components/ProductCard";
+import { API_BASE_URL } from "../services/apiClient";
 import { recommendationService } from "../services/recommendationService";
+import { extractList } from "../utils/normalizeApi";
 
 const DEFAULT_USER_ID = import.meta.env.VITE_DEFAULT_USER_ID || "USR-001";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
+
+function mapProduct(product) {
+  const id = product.idProducto || product.id;
+  return {
+    id,
+    idProducto: id,
+    name: product.nombre || product.name || id,
+    price: Number(product.precio ?? product.price ?? 0),
+    originalPrice: Number(product.precioOriginal ?? product.originalPrice ?? 0) || null,
+    image: product.image || "/images/default-watch.jpg",
+    description: product.reason || product.razon || product.descripcion || product.description || "Recommended for you.",
+    discount: Number(product.descuento ?? product.discount ?? 0),
+    score: product.score,
+  };
+}
 
 export default function RecommendationsPage() {
   const [loading, setLoading] = useState(true);
@@ -16,7 +33,8 @@ export default function RecommendationsPage() {
       setLoading(true);
       setError(null);
       const response = await recommendationService.getUserRecommendations(DEFAULT_USER_ID);
-      setRecommendations(response.data || response || []);
+      const raw = response?.data ?? response;
+      setRecommendations(extractList(raw).map(mapProduct));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -38,7 +56,7 @@ export default function RecommendationsPage() {
           <div className="catalog-status">
             <p>Could not load recommendations from the backend.</p>
             <p>
-              Verify the API is running and that <code>VITE_API_BASE_URL</code> is configured correctly.
+              Verify the API is running and that <code>VITE_API_URL</code> is configured correctly.
             </p>
             <p>
               Current API: <code>{API_BASE_URL}</code>
@@ -56,11 +74,7 @@ export default function RecommendationsPage() {
             ) : (
               <div className="models-grid">
                 {recommendations.map((item, index) => (
-                  <article key={item.idProducto || index} className="product-card">
-                    <h3>{item.nombre || item.name || item.idProducto}</h3>
-                    <p>Score: {item.score ?? "N/A"}</p>
-                    <p>{item.reason || item.razon || "No reason provided."}</p>
-                  </article>
+                  <ProductCard key={item.idProducto || index} {...item} />
                 ))}
               </div>
             )}

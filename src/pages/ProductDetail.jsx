@@ -47,7 +47,11 @@ export default function ProductDetail() {
         const loadedProduct = mapProduct(productResponse.data || productResponse);
         setProduct(loadedProduct);
         setReviews(reviewsResponse.data || reviewsResponse || []);
-        setRelated((relatedResponse.data || relatedResponse || []).map(mapProduct));
+        const relRaw = relatedResponse?.data ?? relatedResponse;
+        const relList = Array.isArray(relRaw)
+          ? relRaw
+          : relRaw?.items || relRaw?.products || [];
+        setRelated(relList.map(mapProduct));
         await userBehaviorService.trackView(DEFAULT_USER_ID, loadedProduct.idProducto, {
           secondsOnPage: 0,
         });

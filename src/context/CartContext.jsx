@@ -63,6 +63,10 @@ export function CartProvider({ children }) {
         await userBehaviorService.addCartItem(DEFAULT_USER_ID, {
           idProducto: action.product.idProducto || action.product.id,
           cantidad: 1,
+          nombre: action.product.nombre || action.product.name,
+          precio: action.product.precio ?? action.product.price,
+          image: action.product.image,
+          descripcion: action.product.descripcion || action.product.description,
         });
       }
       if (action.type === "REMOVE_FROM_CART") {

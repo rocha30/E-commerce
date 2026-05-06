@@ -1,24 +1,108 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
+function normalizeBaseUrl(raw) {
+  const s = (raw || "").trim();
+  if (!s) return "http://localhost:4000/api";
+  return s.replace(/\/+$/, "");
+}
+
+/** Resolved API origin (no trailing slash). Used by fetch wrapper and for troubleshooting. */
+export const API_BASE_URL = normalizeBaseUrl(
+  import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL
+);
+
+function joinUrl(base, path) {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  return `${base}${p}`;
+}
+
+const MAX_ERR_TEXT = 400;
+
+function truncateStr(s, max = MAX_ERR_TEXT) {
+  if (!s || s.length <= max) return s;
+  return `${s.slice(0, max)}…`;
+}
+
+function errorMessageFromBody(payload, response) {
+  if (payload == null || payload === "") {
+    return `${response.status} ${response.statusText || ""}`.trim();
+  }
+  if (typeof payload === "string") {
+    const t = truncateStr(payload.trim());
+    return t || `${response.status} ${response.statusText || ""}`.trim();
+  }
+  if (typeof payload !== "object") {
+    return String(payload);
+  }
+
+  const msg =
+    payload.message ??
+    payload.error ??
+    payload.detail ??
+    payload.title ??
+    payload.description;
+
+  if (typeof msg === "string" && msg.trim()) return msg.trim();
+  if (msg && typeof msg === "object" && typeof msg.message === "string") {
+    return msg.message;
+  }
+
+  if (Array.isArray(payload.errors) && payload.errors.length) {
+    const first = payload.errors[0];
+    if (typeof first === "string") return first;
+    if (first?.message) return String(first.message);
+    if (first?.msg) return String(first.msg);
+  }
+
+  try {
+    const compact = JSON.stringify(payload);
+    if (compact && compact !== "{}") {
+      return compact.length > 280 ? `${compact.slice(0, 280)}…` : compact;
+    }
+  } catch {
+    /* ignore */
+  }
+
+  return `${response.status} ${response.statusText || ""}`.trim();
+}
 
 async function request(path, options = {}) {
-  const url = `${API_BASE_URL}${path}`;
+  const url = joinUrl(API_BASE_URL, path);
   const isFormData = options.body instanceof FormData;
   const defaultHeaders = isFormData ? {} : { "Content-Type": "application/json" };
-  const response = await fetch(url, {
-    headers: { ...defaultHeaders, ...(options.headers || {}) },
-    ...options,
-  });
+  let response;
+  try {
+    response = await fetch(url, {
+      headers: { ...defaultHeaders, ...(options.headers || {}) },
+      ...options,
+    });
+  } catch (netErr) {
+    const hint =
+      netErr?.message ||
+      "Network error (is the backend running? Check VITE_API_URL / CORS.)";
+    throw new Error(`${hint} → ${url}`);
+  }
 
   const contentType = response.headers.get("content-type") || "";
-  const payload = contentType.includes("application/json")
-    ? await response.json()
-    : await response.text();
+  let payload;
+  if (contentType.includes("application/json")) {
+    const text = await response.text();
+    try {
+      payload = text ? JSON.parse(text) : null;
+    } catch {
+      payload = text;
+    }
+  } else {
+    payload = await response.text();
+  }
 
   if (!response.ok) {
-    const message =
-      (payload && payload.message) ||
-      (typeof payload === "string" ? payload : "API error");
-    throw new Error(message);
+    const message = errorMessageFromBody(payload, response);
+    const err = new Error(`${response.status} ${message}`);
+    err.status = response.status;
+    err.url = url;
+    if (import.meta.env.DEV) {
+      console.error("[apiClient]", options.method || "GET", url, payload);
+    }
+    throw err;
   }
 
   return payload;

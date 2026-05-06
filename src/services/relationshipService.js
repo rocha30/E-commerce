@@ -1,35 +1,29 @@
 import { apiClient } from "./apiClient";
+import { buildQueryString } from "../utils/queryString";
 
 export const relationshipService = {
   list(params = {}) {
-    const query = new URLSearchParams(params).toString();
-    return apiClient.get(`/relationships${query ? `?${query}` : ""}`);
+    return apiClient.get(`/relationships${buildQueryString(params)}`);
   },
   create(payload) {
     return apiClient.post("/relationships", payload);
   },
   remove(elementId) {
-    return apiClient.delete(`/relationships/${elementId}`);
+    return apiClient.delete(`/relationships/${encodeURIComponent(elementId)}`);
   },
   removeBulk(payload) {
     return apiClient.delete("/relationships/bulk", payload);
   },
-  addProperties(elementId, payload) {
-    return apiClient.patch(`/relationships/${elementId}/properties/add`, payload);
-  },
-  addPropertiesBulk(payload) {
-    return apiClient.patch("/relationships/properties/add-bulk", payload);
-  },
-  updateProperties(elementId, payload) {
-    return apiClient.patch(`/relationships/${elementId}/properties/update`, payload);
-  },
-  updatePropertiesBulk(payload) {
-    return apiClient.patch("/relationships/properties/update-bulk", payload);
+  patchProperties(elementId, payload) {
+    return apiClient.patch(`/relationships/${encodeURIComponent(elementId)}/properties`, payload);
   },
   removeProperties(elementId, payload) {
-    return apiClient.patch(`/relationships/${elementId}/properties/remove`, payload);
+    return apiClient.delete(`/relationships/${encodeURIComponent(elementId)}/properties`, payload);
   },
-  removePropertiesBulk(payload) {
-    return apiClient.patch("/relationships/properties/remove-bulk", payload);
+  bulkPatchProperties(payload) {
+    return apiClient.patch("/relationships/bulk/properties", payload);
+  },
+  bulkRemoveProperties(payload) {
+    return apiClient.delete("/relationships/bulk/properties", payload);
   },
 };
